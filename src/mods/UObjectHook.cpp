@@ -2022,7 +2022,7 @@ void UObjectHook::on_draw_ui() {
     activate();
 
     if (!m_fully_hooked) {
-        ImGui::Text("Waiting for UObjectBase to be hooked...");
+        ImGui::Text(Localization::tr("Waiting for UObjectBase to be hooked..."));
         return;
     }
 
@@ -2030,20 +2030,20 @@ void UObjectHook::on_draw_ui() {
     std::scoped_lock __{m_function_mutex};
 
     if (m_uobject_hook_disabled) {
-        ImGui::TextColored(ImVec4{1.0f, 0.0f, 0.0f, 1.0f}, "UObjectHook is disabled");
-        if (ImGui::Button("Re-enable")) {
+        ImGui::TextColored(ImVec4{1.0f, 0.0f, 0.0f, 1.0f}, Localization::tr("UObjectHook is disabled"));
+        if (ImGui::Button(Localization::tr("Re-enable"))) {
             m_uobject_hook_disabled = false;
         }
         return;
     }
 
-    if (ImGui::Button("Reload Persistent States")) {
+    if (ImGui::Button(Localization::tr("Reload Persistent States"))) {
         reload_persistent_states();
     }
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Destroy Persistent States")) {
+    if (ImGui::Button(Localization::tr("Destroy Persistent States"))) {
         reset_persistent_states();
 
         const auto uobjecthook_dir = get_persistent_dir();
@@ -2077,7 +2077,7 @@ void UObjectHook::draw_config() {
     m_attach_lerp_speed->draw("Attach Lerp Speed");
 
     ImGui::SetNextItemOpen(true, ImGuiCond_::ImGuiCond_Once);
-    if (ImGui::TreeNode("UObjectHook Keybinds")) {
+    if (ImGui::TreeNode(Localization::tr("UObjectHook Keybinds"))) {
         m_keybind_toggle_uobject_hook->draw("Disable UObjectHook Key");
 
         ImGui::TreePop();
@@ -2085,15 +2085,15 @@ void UObjectHook::draw_config() {
 }
 
 void UObjectHook::draw_developer() {
-    if (ImGui::Button("Dump SDK")) {
+    if (ImGui::Button(Localization::tr("Dump SDK"))) {
         SDKDumper::dump();
     }
 
     ImGui::SetNextItemOpen(true, ImGuiCond_::ImGuiCond_Once);
-    if (ImGui::TreeNode("Debug Stats")) {
+    if (ImGui::TreeNode(Localization::tr("Debug Stats"))) {
         // uint64_t
-        ImGui::Text("Constructor calls: %llu", m_debug.constructor_calls);
-        ImGui::Text("Destructor calls: %llu", m_debug.destructor_calls);
+        ImGui::Text(Localization::tr("Constructor calls: %llu"), m_debug.constructor_calls);
+        ImGui::Text(Localization::tr("Destructor calls: %llu"), m_debug.destructor_calls);
 
         ImGui::TreePop();
     }
@@ -2101,16 +2101,16 @@ void UObjectHook::draw_developer() {
     ImGui::Separator();
 
     if (!m_attempted_hook_process_event) {
-        if (ImGui::Button("Create ProcessEvent hook")) {
+        if (ImGui::Button(Localization::tr("Create ProcessEvent hook"))) {
             GameThreadWorker::get().enqueue([this]() {
                 hook_process_event();
             });
         }
     } else if (m_hooked_process_event) {
-        ImGui::Checkbox("ProcessEvent Listener", &m_process_event_listening);
+        ImGui::Checkbox(Localization::tr("ProcessEvent Listener"), &m_process_event_listening);
 
         if (m_process_event_listening) {
-            if (ImGui::Button("Clear Ignored Functions")) {
+            if (ImGui::Button(Localization::tr("Clear Ignored Functions"))) {
                 m_ignored_recent_functions.clear();
             }
 
@@ -2118,12 +2118,12 @@ void UObjectHook::draw_developer() {
 
             std::scoped_lock __{m_function_mutex};
 
-            if (ImGui::Button("Clear Called Functions")) {
+            if (ImGui::Button(Localization::tr("Clear Called Functions"))) {
                 m_called_functions.clear();
                 m_most_recent_functions.clear();
             }
 
-            if (ImGui::Button("Ignore All Called Functions")) {
+            if (ImGui::Button(Localization::tr("Ignore All Called Functions"))) {
                 m_ignored_recent_functions.clear();
 
                 for (auto& [ufunc, data] : m_called_functions) {
@@ -2131,11 +2131,11 @@ void UObjectHook::draw_developer() {
                 }
             }
 
-            ImGui::Text("Called functions: %llu", m_called_functions.size());
+            ImGui::Text(Localization::tr("Called functions: %llu"), m_called_functions.size());
 
             std::vector<sdk::UFunction*> functions_to_cleanup{};
 
-            if (ImGui::TreeNode("Recent Functions")) {
+            if (ImGui::TreeNode(Localization::tr("Recent Functions"))) {
                 for (auto ufunc : m_most_recent_functions) {
                     if (ufunc == nullptr) {
                         continue;
@@ -2156,21 +2156,21 @@ void UObjectHook::draw_developer() {
                         ImGui::PopID();
                     }};
 
-                    if (ImGui::Button("Ignore")) {
+                    if (ImGui::Button(Localization::tr("Ignore"))) {
                         m_ignored_recent_functions.insert(ufunc);
                     }
 
                     ImGui::SameLine();
 
-                    ImGui::Text("%s", utility::narrow(ufunc->get_full_name()).c_str());
+                    ImGui::Text(Localization::tr("%s"), utility::narrow(ufunc->get_full_name()).c_str());
                 }
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("All Called Functions")) {
-                ImGui::SliderInt("Max Calls", &m_process_event_search.max_calls, 0, 10000);
-                ImGui::InputText("Search", m_process_event_search.buffer.data(), m_process_event_search.buffer.size());
+            if (ImGui::TreeNode(Localization::tr("All Called Functions"))) {
+                ImGui::SliderInt(Localization::tr("Max Calls"), &m_process_event_search.max_calls, 0, 10000);
+                ImGui::InputText(Localization::tr("Search"), m_process_event_search.buffer.data(), m_process_event_search.buffer.size());
 
                 std::string_view search{m_process_event_search.buffer.data()};
                 std::vector<sdk::UFunction*> functions_sorted_by_call_count{};
@@ -2217,7 +2217,7 @@ void UObjectHook::draw_developer() {
                         ImGui::PopID();
                     }};
 
-                    if (ImGui::Button("Ignore")) {
+                    if (ImGui::Button(Localization::tr("Ignore"))) {
                         m_ignored_recent_functions.insert(ufunc);
                     }
 
@@ -2226,7 +2226,7 @@ void UObjectHook::draw_developer() {
                     const auto made = ImGui::TreeNode(utility::narrow(ufunc->get_full_name()).c_str());
 
                     ImGui::SameLine();
-                    ImGui::Text(" (%llu)", m_called_functions[ufunc].call_count);
+                    ImGui::Text(Localization::tr(" (%llu)"), m_called_functions[ufunc].call_count);
 
                     if (made) {
                         auto& data = m_called_functions[ufunc];
@@ -2257,13 +2257,13 @@ void UObjectHook::draw_developer() {
             }
         }
     } else {
-        ImGui::Text("Failed to hook ProcessEvent!");
+        ImGui::Text(Localization::tr("Failed to hook ProcessEvent!"));
     }
 
     ImGui::Separator();
 
     static std::array<char, 512> address_buffer{};
-    ImGui::InputText("Address Lookup", address_buffer.data(), address_buffer.size());
+    ImGui::InputText(Localization::tr("Address Lookup"), address_buffer.data(), address_buffer.size());
 
     // Try-catch block around this because it's possible the user could enter invalid input
     // also hex->int conversion can throw
@@ -2286,10 +2286,10 @@ void UObjectHook::draw_developer() {
 
 void UObjectHook::draw_main() {
     if (!m_motion_controller_attached_components.empty()) {
-        const auto made = ImGui::TreeNode("Attached Components");
+        const auto made = ImGui::TreeNode(Localization::tr("Attached Components"));
 
         if (made) {
-            if (ImGui::Button("Detach all")) {
+            if (ImGui::Button(Localization::tr("Detach all"))) {
                 m_motion_controller_attached_components.clear();
 
                 for (auto persistent_state : m_persistent_states) {
@@ -2325,10 +2325,10 @@ void UObjectHook::draw_main() {
         }
     }
 
-    const auto made2 = m_camera_attach.object != nullptr && ImGui::TreeNode("Attached Camera Object");
+    const auto made2 = m_camera_attach.object != nullptr && ImGui::TreeNode(Localization::tr("Attached Camera Object"));
 
     if (made2) {
-        if (ImGui::Button("Detach Camera")) {
+        if (ImGui::Button(Localization::tr("Detach Camera"))) {
             m_camera_attach.object = nullptr;
             m_camera_attach.offset = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -2345,7 +2345,7 @@ void UObjectHook::draw_main() {
     }
 
     if (m_overlap_detection_actor == nullptr) {
-        if (ImGui::Button("Spawn Overlapper")) {
+        if (ImGui::Button(Localization::tr("Spawn Overlapper"))) {
             spawn_overlapper(0);
             spawn_overlapper(1);
         }
@@ -2353,16 +2353,16 @@ void UObjectHook::draw_main() {
         m_overlap_detection_actor = nullptr;
     } else {
         ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-        const auto made = ImGui::TreeNode("Overlapped Objects");
+        const auto made = ImGui::TreeNode(Localization::tr("Overlapped Objects"));
 
         if (made) {
-            if (ImGui::Button("Destroy Overlapper")) {
+            if (ImGui::Button(Localization::tr("Destroy Overlapper"))) {
                 destroy_overlapper();
             }
 
             ImGui::SameLine();
             bool attach_all = false;
-            if (ImGui::Button("Attach all")) {
+            if (ImGui::Button(Localization::tr("Attach all"))) {
                 attach_all = true;
             }
 
@@ -2396,9 +2396,9 @@ void UObjectHook::draw_main() {
         }
     }
 
-    ImGui::Text("Objects: %zu (%zu actual)", m_objects.size(), sdk::FUObjectArray::get()->get_object_count());
+    ImGui::Text(Localization::tr("Objects: %zu (%zu actual)"), m_objects.size(), sdk::FUObjectArray::get()->get_object_count());
 
-    if (ImGui::TreeNode("Recent Objects")) {
+    if (ImGui::TreeNode(Localization::tr("Recent Objects"))) {
         for (auto& object : m_most_recent_objects) {
             if (!this->exists_unsafe(object)) {
                 continue;
@@ -2414,25 +2414,25 @@ void UObjectHook::draw_main() {
     }
 
     // Display common objects like things related to the player
-    if (ImGui::TreeNode("Common Objects")) {
+    if (ImGui::TreeNode(Localization::tr("Common Objects"))) {
         auto engine = sdk::UGameEngine::get();
         auto world = engine != nullptr ? engine->get_world() : nullptr;
 
         if (world != nullptr) {
-            if (ImGui::TreeNode("PlayerController")) {
+            if (ImGui::TreeNode(Localization::tr("PlayerController"))) {
                 auto scope = m_path.enter_clean("Player Controller");
                 auto player_controller = sdk::UGameplayStatics::get()->get_player_controller(world, 0);
 
                 if (player_controller != nullptr) {
                     ui_handle_object(player_controller);
                 } else {
-                    ImGui::Text("No player controller");
+                    ImGui::Text(Localization::tr("No player controller"));
                 }
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Acknowledged Pawn")) {
+            if (ImGui::TreeNode(Localization::tr("Acknowledged Pawn"))) {
                 auto scope = m_path.enter_clean("Acknowledged Pawn");
                 auto player_controller = sdk::UGameplayStatics::get()->get_player_controller(world, 0);
 
@@ -2442,16 +2442,16 @@ void UObjectHook::draw_main() {
                     if (pawn != nullptr) {
                         ui_handle_object(pawn);
                     } else {
-                        ImGui::Text("No pawn");
+                        ImGui::Text(Localization::tr("No pawn"));
                     }
                 } else {
-                    ImGui::Text("No player controller");
+                    ImGui::Text(Localization::tr("No player controller"));
                 }
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Camera Manager")) {
+            if (ImGui::TreeNode(Localization::tr("Camera Manager"))) {
                 auto scope = m_path.enter_clean("Camera Manager");
                 auto player_controller = sdk::UGameplayStatics::get()->get_player_controller(world, 0);
 
@@ -2461,32 +2461,32 @@ void UObjectHook::draw_main() {
                     if (camera_manager != nullptr) {
                         ui_handle_object((sdk::UObject*)camera_manager);
                     } else {
-                        ImGui::Text("No camera manager");
+                        ImGui::Text(Localization::tr("No camera manager"));
                     }
                 } else {
-                    ImGui::Text("No player controller");
+                    ImGui::Text(Localization::tr("No player controller"));
                 }
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("World")) {
+            if (ImGui::TreeNode(Localization::tr("World"))) {
                 auto scope = m_path.enter_clean("World");
                 ui_handle_object(world);
                 ImGui::TreePop();
             }
         } else {
-            ImGui::Text("No world");
+            ImGui::Text(Localization::tr("No world"));
         }
 
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNode("Objects by class")) {
-        ImGui::Checkbox("Hide Default Classes", &m_hide_default_classes);
+    if (ImGui::TreeNode(Localization::tr("Objects by class"))) {
+        ImGui::Checkbox(Localization::tr("Hide Default Classes"), &m_hide_default_classes);
 
         static char filter[256]{};
-        ImGui::InputText("Filter", filter, sizeof(filter));
+        ImGui::InputText(Localization::tr("Filter"), filter, sizeof(filter));
 
         const bool filter_empty = std::string_view{filter}.empty();
 
@@ -2607,7 +2607,7 @@ void UObjectHook::draw_main() {
                 if (uclass->is_a(sdk::AActor::static_class())) {
                     static char component_add_name[256]{};
 
-                    if (ImGui::InputText("Add Component Permanently", component_add_name, sizeof(component_add_name), ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    if (ImGui::InputText(Localization::tr("Add Component Permanently"), component_add_name, sizeof(component_add_name), ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue)) {
                         const auto component_c = sdk::find_uobject<sdk::UClass>(utility::widen(component_add_name));
 
                         if (component_c != nullptr) {
@@ -2703,11 +2703,11 @@ void UObjectHook::ui_standard_object_context_menu(sdk::UObjectBase* object) {
             }
         };
 
-        if (ImGui::Button("Copy Name")) {
+        if (ImGui::Button(Localization::tr("Copy Name"))) {
             sc(utility::narrow(m_meta_objects[object]->full_name));
         }
 
-        if (ImGui::Button("Copy Address")) {
+        if (ImGui::Button(Localization::tr("Copy Address"))) {
             const auto hex = (std::stringstream{} << std::hex << (uintptr_t)object).str();
             sc(hex);
         }
@@ -2718,12 +2718,12 @@ void UObjectHook::ui_standard_object_context_menu(sdk::UObjectBase* object) {
 
 void UObjectHook::ui_handle_object(sdk::UObject* object) {
     if (object == nullptr) {
-        ImGui::Text("nullptr");
+        ImGui::Text(Localization::tr("nullptr"));
         return;
     }
 
     if (!this->exists_unsafe(object)) {
-        ImGui::Text("Invalid object");
+        ImGui::Text(Localization::tr("Invalid object"));
         return;
     }
 
@@ -2732,33 +2732,33 @@ void UObjectHook::ui_handle_object(sdk::UObject* object) {
     const auto uclass = object->get_class();
 
     if (uclass == nullptr) {
-        ImGui::Text("null class");
+        ImGui::Text(Localization::tr("null class"));
         return;
     }
 
 
     if (!this->exists_unsafe(uclass)) {
-        ImGui::Text("Invalid class");
+        ImGui::Text(Localization::tr("Invalid class"));
         return;
     }
 
     if (object->is_a(sdk::UClass::static_class())) {
-        if (ImGui::TreeNode("Default Object")) {
+        if (ImGui::TreeNode(Localization::tr("Default Object"))) {
             auto def = ((sdk::UClass*)object)->get_class_default_object();
 
             if (def != nullptr) {
                 ui_handle_object(def);
             } else {
-                ImGui::Text("Null default object");
+                ImGui::Text(Localization::tr("Null default object"));
             }
 
             ImGui::TreePop();
         }
     }
 
-    ImGui::Text("%s", utility::narrow(object->get_full_name()).data());
+    ImGui::Text(Localization::tr("%s"), utility::narrow(object->get_full_name()).data());
 
-    if (ImGui::TreeNode("Outer")) {
+    if (ImGui::TreeNode(Localization::tr("Outer"))) {
         auto outer_scope = m_path.enter("Outer");
         ui_handle_object(object->get_outer());
         ImGui::TreePop();
@@ -2773,7 +2773,7 @@ void UObjectHook::ui_handle_object(sdk::UObject* object) {
     static const auto widget_component_t = sdk::find_uobject<sdk::UClass>(L"Class /Script/UMG.WidgetComponent");
 
     if (uclass->is_a(widget_component_t)) {
-        if (ImGui::Button("Set to Screen Space")) {
+        if (ImGui::Button(Localization::tr("Set to Screen Space"))) {
             static const auto set_widget_space_fn = uclass->find_function(L"SetWidgetSpace");
 
             if (set_widget_space_fn != nullptr) {
@@ -2787,7 +2787,7 @@ void UObjectHook::ui_handle_object(sdk::UObject* object) {
     }
 
     if (uclass->is_a(sdk::UActorComponent::static_class())) {
-        /*if (ImGui::Button("Destroy Component")) {
+        /*if (ImGui::Button(Localization::tr("Destroy Component"))) {
             auto comp = (sdk::UActorComponent*)object;
 
             comp->destroy_component();
@@ -2813,7 +2813,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
     bool attached = m_motion_controller_attached_components.contains(comp);
 
     if (attached) {
-        if (ImGui::Button("Detach")) {
+        if (ImGui::Button(Localization::tr("Detach"))) {
             m_motion_controller_attached_components.erase(comp);
 
             auto existing = std::find_if(m_persistent_states.begin(), m_persistent_states.end(), [&](const auto& state2) {
@@ -2830,7 +2830,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
             ImGui::SameLine();
             auto& state = m_motion_controller_attached_components[comp];
 
-            if (ImGui::Checkbox("Adjust", &state->adjusting)) {
+            if (ImGui::Checkbox(Localization::tr("Adjust"), &state->adjusting)) {
                 if (state->adjusting && m_overlap_detection_actor == nullptr) {
                     VR::get()->set_aim_allowed(false);
                     g_framework->set_draw_ui(false);
@@ -2839,7 +2839,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
 
             ImGui::SameLine();
 
-            if (ImGui::Checkbox("Permanent Change", &state->permanent)) {
+            if (ImGui::Checkbox(Localization::tr("Permanent Change"), &state->permanent)) {
                 // Locate the existing persistent state if it exists
                 auto existing = std::find_if(m_persistent_states.begin(), m_persistent_states.end(), [&](const auto& state2) {
                     return state2 != nullptr && state2->path.resolve() == comp;
@@ -2857,7 +2857,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
             // Finetuning of the controller rotation offset
             // Convert to pitch/yaw/roll first.
             auto euler = utility::math::euler_angles_from_steamvr(state->rotation_offset);
-            if (ImGui::DragFloat3("RotationOffset", &euler.x, 0.01f)) {
+            if (ImGui::DragFloat3(Localization::tr("RotationOffset"), &euler.x, 0.01f)) {
                 // Convert back to quaternion
                 state->rotation_offset = glm::quat{glm::yawPitchRoll(-euler.y, euler.x, -euler.z)};
 
@@ -2867,7 +2867,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
             }
 
             // Finetuning of the controller position offset.
-            if (ImGui::DragFloat3("PositionOffset", &state->location_offset.x, 0.01f)) {
+            if (ImGui::DragFloat3(Localization::tr("PositionOffset"), &state->location_offset.x, 0.01f)) {
                 if (existing != m_persistent_states.end()) {
                     (*existing)->state.location_offset = state->location_offset;
                 }
@@ -2912,57 +2912,57 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
             // First one is for checking whether we already have an existing persistent state
             // with its own path.
             if (existing != m_persistent_states.end()) {
-                if (ImGui::Button("Save state")) {
+                if (ImGui::Button(Localization::tr("Save state"))) {
                     save_state_logic((*existing)->path.path());
                 }
             } else if (m_path.has_valid_base()) {
-                if (ImGui::Button("Save state")) {
+                if (ImGui::Button(Localization::tr("Save state"))) {
                     save_state_logic(m_path.path());
                 }
             } else {
                 if (auto path = try_get_path(comp); path.has_value()) {
-                    if (ImGui::Button("Save state")) {
+                    if (ImGui::Button(Localization::tr("Save state"))) {
                         save_state_logic(path->path());
                     }
                 } else {
-                    ImGui::Text("Can't save, did not start from a valid base or none of the allowed bases can reach this component");
+                    ImGui::Text(Localization::tr("Can't save, did not start from a valid base or none of the allowed bases can reach this component"));
                 }
             }
         }
     } else {
         if (m_camera_attach.object != comp) {
-            if (ImGui::Button("Attach left")) {
+            if (ImGui::Button(Localization::tr("Attach left"))) {
                 m_motion_controller_attached_components[comp] = std::make_shared<MotionControllerState>();
                 m_motion_controller_attached_components[comp]->hand = 0;
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Attach right")) {
+            if (ImGui::Button(Localization::tr("Attach right"))) {
                 m_motion_controller_attached_components[comp] = std::make_shared<MotionControllerState>();
                 m_motion_controller_attached_components[comp]->hand = 1;
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Attach HMD")) {
+            if (ImGui::Button(Localization::tr("Attach HMD"))) {
                 m_motion_controller_attached_components[comp] = std::make_shared<MotionControllerState>();
                 m_motion_controller_attached_components[comp]->hand = 2;
             }
 
-            if (ImGui::Button("Attach Camera to")) {
+            if (ImGui::Button(Localization::tr("Attach Camera to"))) {
                 m_camera_attach.object = comp;
                 m_camera_attach.offset = glm::vec3{0.0f, 0.0f, 0.0f};
             }
 
             ImGui::SameLine();
 
-            if (ImGui::Button("Attach Camera to (Relative)")) {
+            if (ImGui::Button(Localization::tr("Attach Camera to (Relative)"))) {
                 m_camera_attach.object = comp;
                 m_camera_attach.offset = glm::vec3{0.0f, 0.0f, m_last_camera_location.z - comp->get_world_location().z};
             }
         } else {
-            if (ImGui::Button("Detach")) {
+            if (ImGui::Button(Localization::tr("Detach"))) {
                 m_camera_attach.object = nullptr;
                 m_camera_attach.offset = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -2976,22 +2976,22 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
             ImGui::SameLine();
 
             if (m_persistent_camera_state != nullptr && m_persistent_camera_state->path.resolve() == comp) {
-                if (ImGui::Button("Save state")) {
+                if (ImGui::Button(Localization::tr("Save state"))) {
                     save_camera_state(m_persistent_camera_state->path.path());
                 }
             } else if (m_path.has_valid_base()) {
-                if (ImGui::Button("Save state")) {
+                if (ImGui::Button(Localization::tr("Save state"))) {
                     save_camera_state(m_path.path());
                 }
             } else if (auto path = try_get_path(comp); path.has_value()) {
-                if (ImGui::Button("Save state")) {
+                if (ImGui::Button(Localization::tr("Save state"))) {
                     save_camera_state(path->path());
                 }
             } else {
-                ImGui::Text("Can't save, did not start from a valid base or none of the allowed bases can reach this component");
+                ImGui::Text(Localization::tr("Can't save, did not start from a valid base or none of the allowed bases can reach this component"));
             }
 
-            if (ImGui::DragFloat3("Camera Offset", &m_camera_attach.offset.x, 0.1f)) {
+            if (ImGui::DragFloat3(Localization::tr("Camera Offset"), &m_camera_attach.offset.x, 0.1f)) {
                 if (m_persistent_camera_state != nullptr) {
                     m_persistent_camera_state->offset = m_camera_attach.offset;
                 }
@@ -3005,10 +3005,10 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
     bool visible = comp->is_a(prim_comp_t) ? prim_comp->is_rendering_in_main_pass() : comp->is_visible();
     bool legacy_visible = comp->is_visible();
 
-    auto visible_checkbox = ImGui::Checkbox("Visible", &visible);
+    auto visible_checkbox = ImGui::Checkbox(Localization::tr("Visible"), &visible);
     ImGui::SameLine();
 
-    const auto legacy_visible_changed = ImGui::Checkbox("Legacy", &legacy_visible);
+    const auto legacy_visible_changed = ImGui::Checkbox(Localization::tr("Legacy"), &legacy_visible);
     visible_checkbox |= legacy_visible_changed;
 
     if (visible_checkbox) {
@@ -3059,7 +3059,7 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Save Visibility State")) {
+    if (ImGui::Button(Localization::tr("Save Visibility State"))) {
         std::shared_ptr<PersistentProperties> props{};
 
         // Find existing one if possible
@@ -3095,20 +3095,20 @@ void UObjectHook::ui_handle_scene_component(sdk::USceneComponent* comp) {
         }
     }
 
-    if (ImGui::TreeNode("Sockets")) {
+    if (ImGui::TreeNode(Localization::tr("Sockets"))) {
         const auto socket_names = comp->get_all_socket_names();
 
         for (auto& name : socket_names) {
-            //ImGui::Text("%s", utility::narrow(name.to_string()).data());
+            //ImGui::Text(Localization::tr("%s"), utility::narrow(name.to_string()).data());
             if (ImGui::TreeNode(utility::narrow(name.to_string()).data())) {
                 auto location = comp->get_socket_location(name.to_string());
                 auto rotation = comp->get_socket_rotation(name.to_string());
 
-                if (ImGui::DragFloat3("Location", &location.x, 0.1f)) {
+                if (ImGui::DragFloat3(Localization::tr("Location"), &location.x, 0.1f)) {
                     //comp->set_socket_location(name, location);
                 }
 
-                if (ImGui::DragFloat3("Rotation", &rotation.x, 0.1f)) {
+                if (ImGui::DragFloat3(Localization::tr("Rotation"), &rotation.x, 0.1f)) {
                     //comp->set_socket_rotation(name, rotation);
                 }
 
@@ -3203,7 +3203,7 @@ void UObjectHook::ui_handle_material_interface(sdk::UObject* object) {
         return;
     }
 
-    if (ImGui::Button("Apply to all actors")) {
+    if (ImGui::Button(Localization::tr("Apply to all actors"))) {
         static const auto mesh_component_t = sdk::find_uobject<sdk::UClass>(L"Class /Script/Engine.StaticMeshComponent");
         static const auto create_dynamic_mat = mesh_component_t->find_function(L"CreateDynamicMaterialInstance");
         static const auto set_material_fn = mesh_component_t->find_function(L"SetMaterial");
@@ -3315,19 +3315,19 @@ void UObjectHook::ui_handle_actor(sdk::UObject* object) {
     auto actor = (sdk::AActor*)object;
 
     if (m_camera_attach.object != object ){
-        if (ImGui::Button("Attach Camera to")) {
+        if (ImGui::Button(Localization::tr("Attach Camera to"))) {
             m_camera_attach.object = object;
             m_camera_attach.offset = glm::vec3{0.0f, 0.0f, 0.0f};
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Attach Camera to (Relative)")) {
+        if (ImGui::Button(Localization::tr("Attach Camera to (Relative)"))) {
             m_camera_attach.object = object;
             m_camera_attach.offset = glm::vec3{0.0f, 0.0f, m_last_camera_location.z - actor->get_actor_location().z};
         }
     } else {
-        if (ImGui::Button("Detach")) {
+        if (ImGui::Button(Localization::tr("Detach"))) {
             m_camera_attach.object = nullptr;
             m_camera_attach.offset = glm::vec3{0.0f, 0.0f, 0.0f};
 
@@ -3339,22 +3339,22 @@ void UObjectHook::ui_handle_actor(sdk::UObject* object) {
         }
 
         if (m_persistent_camera_state != nullptr && m_persistent_camera_state->path.resolve() == object) {
-            if (ImGui::Button("Save state")) {
+            if (ImGui::Button(Localization::tr("Save state"))) {
                 save_camera_state(m_persistent_camera_state->path.path());
             }
         } else if (m_path.has_valid_base()) {
-            if (ImGui::Button("Save state")) {
+            if (ImGui::Button(Localization::tr("Save state"))) {
                 save_camera_state(m_path.path());
             }
         } else if (auto path = try_get_path(object); path.has_value()) {
-            if (ImGui::Button("Save state")) {
+            if (ImGui::Button(Localization::tr("Save state"))) {
                 save_camera_state(path->path());
             }
         } else {
-            ImGui::Text("Can't save, did not start from a valid base or none of the allowed bases can reach this object");
+            ImGui::Text(Localization::tr("Can't save, did not start from a valid base or none of the allowed bases can reach this object"));
         }
 
-        if (ImGui::DragFloat3("Camera Offset", &m_camera_attach.offset.x, 0.1f)) {
+        if (ImGui::DragFloat3(Localization::tr("Camera Offset"), &m_camera_attach.offset.x, 0.1f)) {
             if (m_persistent_camera_state != nullptr) {
                 m_persistent_camera_state->offset = m_camera_attach.offset;
             }
@@ -3363,7 +3363,7 @@ void UObjectHook::ui_handle_actor(sdk::UObject* object) {
 
     static char component_add_name[256]{};
 
-    if (ImGui::InputText("Add Component", component_add_name, sizeof(component_add_name), ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue)) {
+    if (ImGui::InputText(Localization::tr("Add Component"), component_add_name, sizeof(component_add_name), ImGuiInputTextFlags_::ImGuiInputTextFlags_EnterReturnsTrue)) {
         const auto component_c = sdk::find_uobject<sdk::UClass>(utility::widen(component_add_name));
 
         if (component_c != nullptr) {
@@ -3417,7 +3417,7 @@ void UObjectHook::ui_handle_actor(sdk::UObject* object) {
         }
     }
 
-    if (ImGui::TreeNode("Components")) {
+    if (ImGui::TreeNode(Localization::tr("Components"))) {
         auto scope = m_path.enter("Components");
         auto components = actor->get_all_components();
 
@@ -3484,14 +3484,14 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
 
         if (m_called_functions.contains(func)) {
             ImGui::SameLine();
-            ImGui::TextColored(ImVec4{0.0f, 1.0f, 0.0f, 1.0f}, "[Called]");
+            ImGui::TextColored(ImVec4{0.0f, 1.0f, 0.0f, 1.0f}, Localization::tr("[Called]"));
         }
 
         if (is_real_object && made) {
             auto parameters = func->get_child_properties();
 
             if (parameters == nullptr || (parameters->get_next() == nullptr && parameters->get_field_name().to_string() == L"ReturnValue")) {
-                if (ImGui::Button("Call")) {
+                if (ImGui::Button(Localization::tr("Call"))) {
                     struct {
                         char poop[1024]{};
                     } params{};
@@ -3502,7 +3502,7 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
                 switch (utility::hash(utility::narrow(parameters->get_class()->get_name().to_string()))) {
                 case "BoolProperty"_fnv:
                     {
-                        if (ImGui::Button("Enable")) {
+                        if (ImGui::Button(Localization::tr("Enable"))) {
                             struct {
                                 bool enabled{true};
                                 char padding[0x10];
@@ -3513,7 +3513,7 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
 
                         ImGui::SameLine();
 
-                        if (ImGui::Button("Disable")) {
+                        if (ImGui::Button(Localization::tr("Disable"))) {
                             struct {
                                 bool enabled{false};
                                 char padding[0x10];
@@ -3525,7 +3525,7 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
                     break;
                 case "StrProperty"_fnv:
                 {
-                    if (ImGui::Button("Call")) {
+                    if (ImGui::Button(Localization::tr("Call"))) {
                         struct {
                             sdk::TArrayLite<wchar_t> str{};
                             char padding[0x10];
@@ -3544,9 +3544,9 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
                 case "EnumProperty"_fnv:
                     {
                         static int value = 0;
-                        ImGui::InputInt("Value", &value);
+                        ImGui::InputInt(Localization::tr("Value"), &value);
 
-                        if (ImGui::Button("Call")) {
+                        if (ImGui::Button(Localization::tr("Call"))) {
                             struct {
                                 int value{};
                                 char padding[0x10];
@@ -3566,14 +3566,14 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
 
             for (auto param = parameters; param != nullptr; param = param->get_next()) {
                 const auto cname = utility::narrow(param->get_class()->get_name().to_string());
-                ImGui::Text("%s %s", cname.data(), utility::narrow(param->get_field_name().to_string()).data());
+                ImGui::Text(Localization::tr("%s %s"), cname.data(), utility::narrow(param->get_field_name().to_string()).data());
 
                 if (cname.contains("Property")) {
                     const auto prop = (sdk::FProperty*)param;
 
                     if (prop->is_out_param()) {
                         ImGui::SameLine();
-                        ImGui::TextColored(ImVec4{0.0f, 1.0f, 0.0f, 1.0f}, "[Out]");
+                        ImGui::TextColored(ImVec4{0.0f, 1.0f, 0.0f, 1.0f}, Localization::tr("[Out]"));
                     }
 
                     // Display full name of StructProperty
@@ -3588,7 +3588,7 @@ void UObjectHook::ui_handle_functions(void* object, sdk::UStruct* uclass) {
                             constexpr auto b = (float)176.0f / 255.0f;
 
                             ImGui::SameLine();
-                            ImGui::TextColored(ImVec4{r, g, b, 1.0f}, "[%s]", struct_name.data());
+                            ImGui::TextColored(ImVec4{r, g, b, 1.0f}, Localization::tr("[%s]"), struct_name.data());
                         }
                     }
                 }
@@ -3631,7 +3631,7 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
         if (object == nullptr) {
             const auto name = utility::narrow(propc->get_name().to_string());
             const auto field_name = utility::narrow(prop->get_field_name().to_string());
-            ImGui::Text("%s %s", name.data(), field_name.data());
+            ImGui::Text(Localization::tr("%s %s"), name.data(), field_name.data());
 
             continue;
         }
@@ -3661,7 +3661,7 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
             }
 
             if (!previous_path.has_valid_base()) {
-                ImGui::Text("Can't save, did not start from a valid base");
+                ImGui::Text(Localization::tr("Can't save, did not start from a valid base"));
                 ImGui::EndPopup();
                 return;
             }
@@ -3751,11 +3751,11 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
                 }
             };
 
-            if (ImGui::Button("Save Property")) {
+            if (ImGui::Button(Localization::tr("Save Property"))) {
                 save_logic();
             }
 
-            if (ImGui::Button("Unsave Property")) {
+            if (ImGui::Button(Localization::tr("Unsave Property"))) {
                 save_logic(true);
             }
 
@@ -3845,7 +3845,7 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
                 const auto made = ImGui::TreeNode(utility::narrow(prop->get_field_name().to_string()).data());
 
                 if (ImGui::BeginPopupContextItem()) {
-                    if (ImGui::Button("Copy Address")) {
+                    if (ImGui::Button(Localization::tr("Copy Address"))) {
                         const auto hex = (std::stringstream{} << std::hex << (uintptr_t)addr).str();
 
                         if (OpenClipboard(NULL)) {
@@ -3885,9 +3885,9 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
                 const auto wstr = value.to_string();
                 const auto str = utility::narrow(wstr);
 
-                ImGui::Text("%s: ", utility::narrow(prop->get_field_name().to_string()).data());
+                ImGui::Text(Localization::tr("%s: "), utility::narrow(prop->get_field_name().to_string()).data());
                 ImGui::SameLine(0.0f, 0.0f);
-                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, "%s", str.data());
+                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, Localization::tr("%s"), str.data());
             }
             break;
         case L"StrProperty"_fnv:
@@ -3899,13 +3899,13 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
                 const auto str = std::wstring_view{value.data, (size_t)value.count};
                 const auto narrow_str = utility::narrow(str);
 
-                ImGui::Text("%s: ", utility::narrow(prop->get_field_name().to_string()).data());
+                ImGui::Text(Localization::tr("%s: "), utility::narrow(prop->get_field_name().to_string()).data());
                 ImGui::SameLine(0.0f, 0.0f);
-                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, "%s", narrow_str.data());
+                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, Localization::tr("%s"), narrow_str.data());
             } else {
-                ImGui::Text("%s: ", utility::narrow(prop->get_field_name().to_string()).data());
+                ImGui::Text(Localization::tr("%s: "), utility::narrow(prop->get_field_name().to_string()).data());
                 ImGui::SameLine(0.0f, 0.0f);
-                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, "[empty string]");
+                ImGui::TextColored(ImVec4{3.0f / 255.0f, 232.0f / 255.0f, 252.0f / 255.0f, 1.0f}, Localization::tr("[empty string]"));
             }
             break;
         }
@@ -3913,7 +3913,7 @@ void UObjectHook::ui_handle_properties(void* object, sdk::UStruct* uclass) {
             {
                 const auto name = utility::narrow(propc->get_name().to_string());
                 const auto field_name = utility::narrow(prop->get_field_name().to_string());
-                ImGui::Text("%s %s", name.data(), field_name.data());
+                ImGui::Text(Localization::tr("%s %s"), name.data(), field_name.data());
             }
             break;
         };
@@ -3928,21 +3928,21 @@ void UObjectHook::ui_handle_array_property(void* addr, sdk::FArrayProperty* prop
     const auto& array_generic = *(sdk::TArray<void*>*)((uintptr_t)addr + prop->get_offset());
 
     if (array_generic.data == nullptr || array_generic.count == 0) {
-        ImGui::Text("Empty array");
+        ImGui::Text(Localization::tr("Empty array"));
         return;
     }
 
     const auto inner = prop->get_inner();
 
     if (inner == nullptr) {
-        ImGui::Text("Failed to get inner property");
+        ImGui::Text(Localization::tr("Failed to get inner property"));
         return;
     }
     
     const auto inner_c = inner->get_class();
 
     if (inner_c == nullptr) {
-        ImGui::Text("Failed to get inner property class");
+        ImGui::Text(Localization::tr("Failed to get inner property class"));
         return;
     }
 
@@ -3974,7 +3974,7 @@ void UObjectHook::ui_handle_array_property(void* addr, sdk::FArrayProperty* prop
         const auto& array_obj = *(sdk::TArray<void*>*)((uintptr_t)addr + prop->get_offset());
 
         if (array_obj.data == nullptr || array_obj.count == 0) {
-            ImGui::Text("Empty array");
+            ImGui::Text(Localization::tr("Empty array"));
             return;
         }
 
@@ -3982,7 +3982,7 @@ void UObjectHook::ui_handle_array_property(void* addr, sdk::FArrayProperty* prop
         const auto strukt = struct_prop->get_struct();
 
         if (strukt == nullptr) {
-            ImGui::Text("Cannot determine struct type");
+            ImGui::Text(Localization::tr("Cannot determine struct type"));
             return;
         }
         
@@ -3992,7 +3992,7 @@ void UObjectHook::ui_handle_array_property(void* addr, sdk::FArrayProperty* prop
             element_size = strukt->get_properties_size();
 
             if (element_size == 0) {
-                ImGui::Text("Cannot determine struct size");
+                ImGui::Text(Localization::tr("Cannot determine struct size"));
                 return;
             }
         }
@@ -4009,13 +4009,13 @@ void UObjectHook::ui_handle_array_property(void* addr, sdk::FArrayProperty* prop
                 }
             }
         } catch(...) {
-            ImGui::Text("Failed to display element %d", i);
+            ImGui::Text(Localization::tr("Failed to display element %d"), i);
         }
 
         break;
     }
     default:
-        ImGui::Text("Array of %s (unsupported)", inner_c_type.data());
+        ImGui::Text(Localization::tr("Array of %s (unsupported)"), inner_c_type.data());
         break;
     };
 }
@@ -4031,7 +4031,7 @@ void UObjectHook::ui_handle_struct(void* addr, sdk::UStruct* uclass) {
     }
 
     // Display inheritance tree
-    if (ImGui::TreeNode("Inheritance")) {
+    if (ImGui::TreeNode(Localization::tr("Inheritance"))) {
         for (auto super = (sdk::UStruct*)uclass; super != nullptr; super = super->get_super_struct()) {
             if (ImGui::TreeNode(utility::narrow(super->get_full_name()).data())) {
                 ui_handle_struct(addr, super);
@@ -4042,13 +4042,13 @@ void UObjectHook::ui_handle_struct(void* addr, sdk::UStruct* uclass) {
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNode("Functions")) {
+    if (ImGui::TreeNode(Localization::tr("Functions"))) {
         ui_handle_functions(addr, uclass);
         ImGui::TreePop();
     }
 
     ImGui::SetNextItemOpen(true, ImGuiCond_::ImGuiCond_Once);
-    if (ImGui::TreeNode("Properties")) {
+    if (ImGui::TreeNode(Localization::tr("Properties"))) {
         ui_handle_properties(addr, uclass);
         ImGui::TreePop();
     }

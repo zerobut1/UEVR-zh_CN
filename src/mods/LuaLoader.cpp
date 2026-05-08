@@ -2,6 +2,7 @@
 #include <filesystem>
 
 #include "Framework.hpp"
+#include "Localization.hpp"
 #include "PluginLoader.hpp"
 #include "LuaLoader.hpp"
 
@@ -88,7 +89,7 @@ void LuaLoader::on_frame() {
 
 void LuaLoader::on_draw_sidebar_entry(std::string_view in_entry) {
     if (in_entry == "Main") {
-        if (ImGui::Button("Run script")) {
+        if (ImGui::Button(Localization::tr("Run script"))) {
             OPENFILENAME ofn{};
             char file[260]{};
 
@@ -108,13 +109,13 @@ void LuaLoader::on_draw_sidebar_entry(std::string_view in_entry) {
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Reset scripts")) {
+        if (ImGui::Button(Localization::tr("Reset scripts"))) {
             reset_scripts();
         }
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Spawn Debug Console")) {
+        if (ImGui::Button(Localization::tr("Spawn Debug Console"))) {
             if (!m_console_spawned) {
                 AllocConsole();
                 freopen("CONIN$", "r", stdin);
@@ -126,13 +127,13 @@ void LuaLoader::on_draw_sidebar_entry(std::string_view in_entry) {
         }
 
         //Garbage collection currently only showing from main lua state, might rework to show total later?
-        if (ImGui::TreeNode("Garbage Collection Stats")) {
+        if (ImGui::TreeNode(Localization::tr("Garbage Collection Stats"))) {
             std::scoped_lock _{ m_access_mutex };
 
             auto g = G(m_main_state->lua().lua_state());
             const auto bytes_in_use = g->totalbytes + g->GCdebt;
 
-            ImGui::Text("Megabytes in use: %.2f", (float)bytes_in_use / 1024.0f / 1024.0f);
+            ImGui::Text(Localization::tr("Megabytes in use: %.2f"), (float)bytes_in_use / 1024.0f / 1024.0f);
 
             ImGui::TreePop();
         }
@@ -182,17 +183,17 @@ void LuaLoader::on_draw_sidebar_entry(std::string_view in_entry) {
             const auto diff = now - last_script_error->t;
             const auto sec = std::chrono::duration<float>(diff).count();
 
-            ImGui::TextWrapped("Last Error Time: %.2f seconds ago", sec);
+            ImGui::TextWrapped(Localization::tr("Last Error Time: %.2f seconds ago"), sec);
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-            ImGui::TextWrapped("Last Script Error: %s", last_script_error->e.c_str());
+            ImGui::TextWrapped(Localization::tr("Last Script Error: %s"), last_script_error->e.c_str());
             ImGui::PopStyleColor();
         } else {
-            ImGui::TextWrapped("No Script Errors... yet!");
+            ImGui::TextWrapped(Localization::tr("No Script Errors... yet!"));
         }
 
         if (!m_known_scripts.empty()) {
-            ImGui::Text("Known scripts:");
+            ImGui::Text(Localization::tr("Known scripts:"));
 
             for (auto&& name : m_known_scripts) {
                 if (ImGui::Checkbox(name.data(), &m_loaded_scripts_map[name])) {
@@ -201,7 +202,7 @@ void LuaLoader::on_draw_sidebar_entry(std::string_view in_entry) {
                 }
             }
         } else {
-            ImGui::Text("No scripts loaded.");
+            ImGui::Text(Localization::tr("No scripts loaded."));
         }
 
         ImGui::TreePop();

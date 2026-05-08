@@ -19,6 +19,7 @@ public:
             *m_l3_r3_long_press,
             *m_advanced_mode,
             *m_imgui_theme,
+            *m_ui_language,
             *m_log_level,
             *m_always_show_cursor,
             *m_font_size,
@@ -89,6 +90,14 @@ public:
         return m_imgui_theme;
     }
 
+    auto& get_ui_language() const {
+        return m_ui_language;
+    }
+
+    Localization::Language get_ui_language_value() const {
+        return static_cast<Localization::Language>(m_ui_language->value());
+    }
+
     int32_t get_font_size() const {
         return m_font_size->value();
     }
@@ -123,6 +132,7 @@ private:
     ModToggle::Ptr m_advanced_mode{ ModToggle::create(generate_name("AdvancedMode"), false) };
     
     ModCombo::Ptr m_imgui_theme{ ModCombo::create(generate_name("ImGuiTheme"), s_imgui_themes, Framework::ImGuiThemes::DEFAULT_DARK) };
+    ModCombo::Ptr m_ui_language{ ModCombo::create(generate_name("UILanguage"), Localization::language_options(), (int32_t)Localization::Language::SimplifiedChinese) };
     ModCombo::Ptr m_log_level{ ModCombo::create(generate_name("LogLevel"), s_get_log_levels(), spdlog::level::info) };
     
     ModKey::Ptr m_show_cursor_key{ ModKey::create(generate_name("ShowCursorKey")) };

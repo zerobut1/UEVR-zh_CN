@@ -30,6 +30,9 @@ void FrameworkConfig::draw_main() {
 
 void FrameworkConfig::draw_themes() {
     get_imgui_theme()->draw("Select GUI Theme");
+    if (get_ui_language()->draw("Select GUI Language")) {
+        Localization::set_language(get_ui_language_value());
+    }
 
     if (m_font_size->draw("Font Size")) {
         g_framework->set_font_size(m_font_size->value());
@@ -63,6 +66,7 @@ void FrameworkConfig::on_config_load(const utility::Config& cfg, bool set_defaul
     }
     
     g_framework->set_font_size(m_font_size->value());
+    Localization::set_language(get_ui_language_value());
 
     if (m_log_level->value() >= 0 && m_log_level->value() <= spdlog::level::level_enum::n_levels) {
         spdlog::set_level((spdlog::level::level_enum)m_log_level->value());   
