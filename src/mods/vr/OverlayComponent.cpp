@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 
 #include "Framework.hpp"
+#include "Localization.hpp"
 #include "../VR.hpp"
 #include "../utility/ImGui.hpp"
 
@@ -203,7 +204,7 @@ void OverlayComponent::on_config_load(const utility::Config& cfg, bool set_defau
 
 void OverlayComponent::on_draw_ui() {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::TreeNode("Overlay Options")) {
+    if (ImGui::TreeNode(Localization::tr("Overlay Options"))) {
         if (VR::get()->get_runtime()->is_cylinder_layer_allowed()) {
             m_slate_overlay_type->draw("Overlay Type");
 
@@ -214,7 +215,7 @@ void OverlayComponent::on_draw_ui() {
 
         float ui_offset[] { m_slate_x_offset->value(), m_slate_y_offset->value(), m_slate_distance->value() };
 
-        if (ImGui::SliderFloat3("UI Offset", ui_offset, -10.0f, 10.0f)) {
+        if (ImGui::SliderFloat3(Localization::tr("UI Offset"), ui_offset, -10.0f, 10.0f)) {
             m_slate_x_offset->value() = ui_offset[0];
             m_slate_y_offset->value() = ui_offset[1];
             m_slate_distance->value() = ui_offset[2];

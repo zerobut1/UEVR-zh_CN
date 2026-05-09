@@ -43,6 +43,7 @@
 #include <sdk/FTextureRenderTargetResource.hpp>
 
 #include "Framework.hpp"
+#include "Localization.hpp"
 #include "Mods.hpp"
 #include "mods/UObjectHook.hpp"
 
@@ -118,7 +119,7 @@ void FFakeStereoRenderingHook::on_draw_ui() {
     ZoneScopedN(__FUNCTION__);
 
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::TreeNode("Stereo Hook Options")) {
+    if (ImGui::TreeNode(Localization::tr("Stereo Hook Options"))) {
         m_asynchronous_scan->draw("Asynchronous Code Scanning");
         m_recreate_textures_on_reset->draw("Recreate Textures on Reset");
         m_frame_delay_compensation->draw("Frame Delay Compensation");
@@ -129,22 +130,22 @@ void FFakeStereoRenderingHook::on_draw_ui() {
         }
 
 #if 0
-        if (ImGui::Button("Spawn scene capture")) {
+        if (ImGui::Button(Localization::tr("Spawn scene capture"))) {
             get_render_target_manager()->create_scene_capture();
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Destroy scene capture")) {
+        if (ImGui::Button(Localization::tr("Destroy scene capture"))) {
             get_render_target_manager()->destroy_scene_capture();
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Create texture")) {
+        if (ImGui::Button(Localization::tr("Create texture"))) {
             get_render_target_manager()->create_scene_capture_texture();
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Destroy texture")) {
+        if (ImGui::Button(Localization::tr("Destroy texture"))) {
             get_render_target_manager()->destroy_scene_capture();
         }
 
@@ -155,7 +156,7 @@ void FFakeStereoRenderingHook::on_draw_ui() {
                 status = true;
             }
         }
-        ImGui::Text("Scene Capture Texture: %s", status ? "Exists" : "Does not exist");
+        ImGui::Text(Localization::tr("Scene Capture Texture: %s"), status ? "Exists" : "Does not exist");
 #endif
 
         auto& data = m_viewport_rt_hook_data;
@@ -190,24 +191,24 @@ void FFakeStereoRenderingHook::on_draw_ui() {
                     }
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Call Original")) {
+                    if (ImGui::Button(Localization::tr("Call Original"))) {
                         data.call_original_retaddrs.insert(retaddr);
                         data.redirected_retaddrs.erase(retaddr);
                     }
 
                     ImGui::SameLine();
-                    if (ImGui::Button("Redirect")) {
+                    if (ImGui::Button(Localization::tr("Redirect"))) {
                         data.redirected_retaddrs.insert(retaddr);
                         data.call_original_retaddrs.erase(retaddr);
                     }
 
                     ImGui::SameLine();
                     if (data.call_original_retaddrs.contains(retaddr)) {
-                        ImGui::Text("[Calling Original]");
+                        ImGui::Text(Localization::tr("[Calling Original]"));
                     } else if (data.redirected_retaddrs.contains(retaddr)) {
-                        ImGui::Text("[Redirected]");
+                        ImGui::Text(Localization::tr("[Redirected]"));
                     } else {
-                        ImGui::Text("[Default]");
+                        ImGui::Text(Localization::tr("[Default]"));
                     }
 
                     ImGui::PopID();
