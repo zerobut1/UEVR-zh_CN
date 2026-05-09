@@ -2,6 +2,12 @@
 
 Universal Unreal Engine VR Mod (4/5)
 
+## Localization(zh_CN)
+
+[本仓库](https://github.com/zerobut1/UEVR-zh_CN) 为【佐木了】个人维护UEVR汉化版
+
+- 2026-05-09: 同步最新版本UEVR
+
 ## Supported Engine Versions
 
 4.8 - 5.4
